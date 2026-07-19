@@ -1,0 +1,13 @@
+kind = "source"
+module = "github.com/moglang/encoding"
+import_name = "encoding"
+namespace = "github"
+name = "encoding"
+version = "0.1.1"
+license = "MIT"
+mog_runtime = "^0.1.1"
+author = "Mog contributors"
+description = "Portable text encoding helpers."
+repository = "https://github.com/moglang/encoding"
+entry = "src/main.mog"
+dependencies = []

@@ -1,0 +1,8 @@
+package encoding
+fn hexEncode(text str) str
+fn hexDecode(text str) str
+fn base64Encode(text str) str
+fn base64Decode(text str) str
+fn urlEncode(text str) str
+fn urlDecode(text str) str
+fn checksum(text str) str

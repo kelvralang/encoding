@@ -1,0 +1,135 @@
+fn _hexValue(code i64) i64 {
+    if (code >= 48 && code <= 57) return code - 48
+    if (code >= 65 && code <= 70) return code - 55
+    if (code >= 97 && code <= 102) return code - 87
+    return -1
+}
+
+fn _hexDigit(value i64) str {
+    if (value < 10) return charFromCode(48 + value)
+    return charFromCode(87 + value)
+}
+
+fn hexEncode(text str) str {
+    var out str = ""
+    var index i64 = 0
+    while (index < len(text)) {
+        var code i64 = charCodeAt(text, index)
+        out = out + _hexDigit(code / 16) + _hexDigit(code - (code / 16) * 16)
+        index = index + 1
+    }
+    return out
+}
+
+fn hexDecode(text str) str {
+    if (len(text) - (len(text) / 2) * 2 != 0) error("hex input must contain an even number of characters")
+    var out str = ""
+    var index i64 = 0
+    while (index < len(text)) {
+        var high i64 = _hexValue(charCodeAt(text, index))
+        var low i64 = _hexValue(charCodeAt(text, index + 1))
+        if (high < 0 || low < 0) error("hex input contains an invalid character")
+        out = out + charFromCode(high * 16 + low)
+        index = index + 2
+    }
+    return out
+}
+
+fn base64Encode(text str) str {
+    var alphabet str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    var out str = ""
+    var index i64 = 0
+    while (index < len(text)) {
+        var a i64 = charCodeAt(text, index)
+        var hasB bool = index + 1 < len(text)
+        var hasC bool = index + 2 < len(text)
+        var b i64 = 0
+        var c i64 = 0
+        if (hasB) b = charCodeAt(text, index + 1)
+        if (hasC) c = charCodeAt(text, index + 2)
+        out = out + charFromCode(charCodeAt(alphabet, a / 4))
+        out = out + charFromCode(charCodeAt(alphabet, (a - (a / 4) * 4) * 16 + b / 16))
+        if (hasB) { out = out + charFromCode(charCodeAt(alphabet, (b - (b / 16) * 16) * 4 + c / 64)) } else { out = out + "=" }
+        if (hasC) { out = out + charFromCode(charCodeAt(alphabet, c - (c / 64) * 64)) } else { out = out + "=" }
+        index = index + 3
+    }
+    return out
+}
+
+fn _base64Value(code i64) i64 {
+    if (code >= 65 && code <= 90) return code - 65
+    if (code >= 97 && code <= 122) return code - 71
+    if (code >= 48 && code <= 57) return code + 4
+    if (code == 43) return 62
+    if (code == 47) return 63
+    return -1
+}
+
+fn base64Decode(text str) str {
+    if (len(text) - (len(text) / 4) * 4 != 0) error("base64 input length must be a multiple of four")
+    var out str = ""
+    var index i64 = 0
+    while (index < len(text)) {
+        var a i64 = _base64Value(charCodeAt(text, index))
+        var b i64 = _base64Value(charCodeAt(text, index + 1))
+        var cCode i64 = charCodeAt(text, index + 2)
+        var dCode i64 = charCodeAt(text, index + 3)
+        var c i64 = _base64Value(cCode)
+        var d i64 = _base64Value(dCode)
+        if (a < 0 || b < 0 || (cCode != 61 && c < 0) || (dCode != 61 && d < 0)) error("base64 input contains an invalid character")
+        if ((cCode == 61 || dCode == 61) && index + 4 != len(text)) error("base64 padding is only valid at the end")
+        if (cCode == 61 && dCode != 61) error("base64 padding is invalid")
+        if (cCode == 61 && b - (b / 16) * 16 != 0) error("base64 input has non-canonical padding bits")
+        if (dCode == 61 && cCode != 61 && c - (c / 4) * 4 != 0) error("base64 input has non-canonical padding bits")
+        out = out + charFromCode(a * 4 + b / 16)
+        if (cCode != 61) out = out + charFromCode((b - (b / 16) * 16) * 16 + c / 4)
+        if (dCode != 61) out = out + charFromCode((c - (c / 4) * 4) * 64 + d)
+        index = index + 4
+    }
+    return out
+}
+
+fn _unreserved(code i64) bool {
+    return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 48 && code <= 57) || code == 45 || code == 46 || code == 95 || code == 126
+}
+
+fn urlEncode(text str) str {
+    var out str = ""
+    var index i64 = 0
+    while (index < len(text)) {
+        var code i64 = charCodeAt(text, index)
+        if (_unreserved(code)) { out = out + charFromCode(code) } else { out = out + "%" + _hexDigit(code / 16) + _hexDigit(code - (code / 16) * 16) }
+        index = index + 1
+    }
+    return out
+}
+
+fn urlDecode(text str) str {
+    var out str = ""
+    var index i64 = 0
+    while (index < len(text)) {
+        var code i64 = charCodeAt(text, index)
+        if (code == 37) {
+            if (index + 2 >= len(text)) error("incomplete percent escape")
+            var high i64 = _hexValue(charCodeAt(text, index + 1))
+            var low i64 = _hexValue(charCodeAt(text, index + 2))
+            if (high < 0 || low < 0) error("invalid percent escape")
+            out = out + charFromCode(high * 16 + low)
+            index = index + 3
+        } else {
+            out = out + charFromCode(code)
+            index = index + 1
+        }
+    }
+    return out
+}
+
+fn checksum(text str) str {
+    var hash i64 = 0
+    var index i64 = 0
+    while (index < len(text)) {
+        hash = (hash * 31 + charCodeAt(text, index)) - ((hash * 31 + charCodeAt(text, index)) / 2147483647) * 2147483647
+        index = index + 1
+    }
+    return hexEncode(str(hash))
+}

@@ -1,0 +1,11 @@
+const encoding = @import("github.com/moglang/encoding")
+fn assert(condition bool, message str) void { if (!condition) error(message) }
+
+assert(encoding.hexEncode("Mog!") == "4d6f6721", "hex encoding")
+assert(encoding.hexDecode("4D6F6721") == "Mog!", "hex decoding accepts uppercase digits")
+assert(encoding.base64Encode("M") == "TQ==", "base64 one-byte padding")
+assert(encoding.base64Encode("Mo") == "TW8=", "base64 two-byte padding")
+assert(encoding.base64Decode("TW9n") == "Mog", "base64 decoding")
+assert(encoding.urlEncode("a b/c?") == "a%20b%2fc%3f", "URL encoding")
+assert(encoding.urlDecode("a%20b%2Fc%3F") == "a b/c?", "URL decoding")
+assert(encoding.checksum("mog") == "313038323933", "stable checksum")
