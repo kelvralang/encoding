@@ -1,0 +1,4 @@
+const encoding = @import("github.com/moglang/encoding")
+
+// Expected runtime error: non-canonical padding bits.
+encoding.base64Decode("TR==")

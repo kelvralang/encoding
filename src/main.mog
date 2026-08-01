@@ -124,7 +124,32 @@ fn urlDecode(text str) str {
     return out
 }
 
-fn checksum(text str) str {
+fn _hex32(value i64) str {
+    var out str = ""
+    var remainder i64 = value
+    var divisor i64 = 268435456
+    while (divisor > 0) {
+        var digit i64 = remainder / divisor
+        out = out + _hexDigit(digit)
+        remainder = remainder - digit * divisor
+        divisor = divisor / 16
+    }
+    return out
+}
+
+fn adler32(text str) str {
+    var a i64 = 1
+    var b i64 = 0
+    var index i64 = 0
+    while (index < len(text)) {
+        a = (a + charCodeAt(text, index)) - ((a + charCodeAt(text, index)) / 65521) * 65521
+        b = (b + a) - ((b + a) / 65521) * 65521
+        index = index + 1
+    }
+    return _hex32(b * 65536 + a)
+}
+
+fn legacyPolynomialChecksum(text str) str {
     var hash i64 = 0
     var index i64 = 0
     while (index < len(text)) {
@@ -132,4 +157,8 @@ fn checksum(text str) str {
         index = index + 1
     }
     return hexEncode(str(hash))
+}
+
+fn checksum(text str) str {
+    return legacyPolynomialChecksum(text)
 }

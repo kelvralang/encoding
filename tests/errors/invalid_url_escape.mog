@@ -1,0 +1,4 @@
+const encoding = @import("github.com/moglang/encoding")
+
+// Expected runtime error: percent escapes require two hexadecimal digits.
+encoding.urlDecode("bad%2")
