@@ -5,4 +5,6 @@ fn base64Encode(text str) str
 fn base64Decode(text str) str
 fn urlEncode(text str) str
 fn urlDecode(text str) str
+fn adler32(text str) str
+fn legacyPolynomialChecksum(text str) str
 fn checksum(text str) str
