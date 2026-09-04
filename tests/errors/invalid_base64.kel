@@ -1,4 +1,4 @@
-const encoding = @import("github.com/moglang/encoding")
+const encoding = @import("github.com/kelvralang/encoding")
 
 // Expected runtime error: non-canonical padding bits.
 encoding.base64Decode("TR==")
