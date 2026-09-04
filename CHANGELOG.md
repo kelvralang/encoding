@@ -2,7 +2,9 @@
 
 ## 0.2.0
 
-- Correct the minimum supported runtime to Mog 0.1.4, the first release that
+- Rename package manifests, source files, imports, automation, and documentation from Mog to Kelvra; require Kelvra 0.2.0 or newer.
+
+- Correct the minimum supported runtime to Kelvra 0.1.4, the first release that
   embeds its configured package-compatibility version correctly.
 - Add pinned CI/release automation with tag checks, 0.1.4/current-runtime tests,
   checksummed archives, and automated action updates.
@@ -18,7 +20,7 @@
 ## 0.1.1
 
 - Reject malformed Base64 padding instead of silently accepting invalid input.
-- Require Mog runtime 0.1.1 or newer for the string primitive support used by this package.
+- Require Kelvra runtime 0.1.1 or newer for the string primitive support used by this package.
 
 ## 0.1.0
 
